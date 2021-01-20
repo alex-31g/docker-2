@@ -17,3 +17,12 @@ services:
     environment:
       # Порт внутри контейнера
       - PORT=3200
+      - HOST=http://docker-app.com
+      # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
+      - MONGO_URL=mongodb://api_db:27017/api
+    depends_on:
+      # Запуск сервиса 'api' выполнять после сервиса сервиса 'api_db'
+      - api_db
+
+  api_db:
+    image: mongo:latest
