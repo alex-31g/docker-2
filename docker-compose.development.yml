@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  api:
+    # Перезапись command
+    command: npm run dev
+    # Создание volume
+    volumes:
+      # Данные хоста по адрессу ./api/src поместить
+      # внутрь контейнера по адрессу /usr/src/app/src.
+      # /usr/src/app/ - с какого каталога начинать работу внутри контейнера,
+      # данный путь мы задали внутри Dockerfile
+      - ./api/src:/usr/src/app/src

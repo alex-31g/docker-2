@@ -26,3 +26,12 @@ services:
 
   api_db:
     image: mongo:latest
+    volumes:
+      # mongodb_api - имя, которое мы присваиваем для volume
+      # /data/db - место, где mongo хранит данные
+      # То-есть мы говорим, что volume с именем mongodb_api на хосте конектится к /data/db внутри контейнера
+      - mongodb_api:/data/db
+
+# Запись ниже говорит, что мы можем использовать volume с именем mongodb_api в любом нашем сервисе 
+volumes:
+  mongodb_api:
