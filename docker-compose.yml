@@ -6,8 +6,9 @@ services:
     build: ./frontend
     container_name: docker-frontend
     command: serve -s build -l 3000
-    ports:
-      - "3000:3000"
+    # Порты описано внутри *nginx\nginx.conf.prod*
+    # ports:
+    #   - "3000:3000"
     restart: unless-stopped
 
   # Сервис 'api'
@@ -29,7 +30,7 @@ services:
     environment:
       # Порт внутри контейнера
       - PORT=3201
-      - HOST=http://docker-app.com
+      - HOST=http://docker-app-1.com
       # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
       - MONGO_URL=mongodb://api_db:27017/api
     # Задаем сервисы, без которых сервис 'api' не может существовать
@@ -56,7 +57,7 @@ services:
     environment:
       # Порт внутри контейнера
       - PORT=3202
-      - HOST=http://docker-app.com
+      - HOST=http://docker-app-1.com
       # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
       - MONGO_URL=mongodb://auth_db:27017/auth
     # Задаем сервисы, без которых сервис 'api' не может существовать
@@ -66,7 +67,7 @@ services:
 
   # Сервис 'api_db'
   api_db:
-    # Задаем имя image, на базе которого нужно создать данный сервис
+    # Качаем образ mongo, на базе которого нужно создать данный сервис
     image: mongo:latest
     # Задаем имя контейнеру, которое будет отображаться при вводе комманды `docker ps`
     container_name: docker-api_db
@@ -79,7 +80,7 @@ services:
 
   # Сервис 'auth_db'
   auth_db:
-    # Задаем имя image, на базе которого нужно создать данный сервис
+    # Качаем образ mongo, на базе которого нужно создать данный сервис
     image: mongo:latest
     # Задаем имя контейнеру, которое будет отображаться при вводе комманды `docker ps`
     container_name: docker-auth_db
@@ -89,6 +90,28 @@ services:
       # /data/db - место, где mongo хранит данные
       # То-есть мы говорим, что volume с именем mongodb_auth на хосте конектится к /data/db внутри контейнера
       - mongodb_auth:/data/db
+
+  # Сервис 'nginx'
+  nginx:
+    # Качаем образ nginx, на базе которого нужно создать данный сервис
+    image: nginx:stable-alpine
+    # Задаем имя контейнеру, которое будет отображаться при вводе комманды `docker ps`
+    container_name: docker-nginx
+    ports:
+      # Говорим, что к 80-му порту контейнера можно получить доступ через
+      # 80-й порт хоста.
+      # хост:контейнер 
+      - "80:80"
+    # Указываем volume для данного контейнера, чтобы сохранить его на хосте
+    volumes: 
+      # Данные хоста по адрессу ./nginx/nginx.conf.prod положить
+      # внутрь контейнера по адрессу /etc/nginx/conf.d/nginx.conf
+      - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
+    depends_on: 
+      # Сервис frontend должен быть доступен раньше, чем сервис nginx, 
+      # иначе nginx упадет, если он не сможет спроксировать запрос на сервис, 
+      # который ранится
+      - frontend
 
 # Запись ниже говорит, что мы можем использовать volume с именем mongodb_api и mongodb_auth в любом нашем сервисе 
 volumes:
