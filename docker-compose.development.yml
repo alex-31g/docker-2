@@ -7,6 +7,21 @@ version: "3"
 # так и определение новых volume, которые необходимы только в режиме development
 
 services:
+  frontend:
+    # Перезапись command
+    command: npm run start
+    # Два поля ниже - обязательны при работе с react внутри контейнера -
+    # они позволяют запустить интерактивную консоль react в контейнере
+    stdin_open: true # аналог docker run -i
+    tty: true # аналог docker run -t
+    # Указываем volume для данного контейнера, чтобы сохранить его на хосте
+    volumes:
+      # Данные хоста по адрессу ./fontend/src приконектить
+      # внутрь контейнера по адрессу /usr/src/app/src.
+      # /usr/src/app/ - с какого каталога начинать работу внутри контейнера,
+      # данный путь мы задали внутри Dockerfile
+      - ./frontend/src:/usr/src/app/src
+      
   api:
     # Перезапись command
     command: npm run dev

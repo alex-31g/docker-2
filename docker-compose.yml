@@ -2,6 +2,14 @@ version: "3"
 
 # Указываем, какие сервисы DC должен сбилдить и запустить
 services:
+  frontend:
+    build: ./frontend
+    container_name: docker-frontend
+    command: serve -s build -l 3000
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
   # Сервис 'api'
   api:
     # DC берёт DF из папки './api' и на базе этого файла - создает контейнер
@@ -16,11 +24,11 @@ services:
     ports:
       # Пробрасываем порт контейнера наружу:
       # хост:контейнер
-      - "3000:3200"
+      - "3001:3201"
     # Задаем переменные окружения - они будут доступны в коде из process.env.PORT, ...
     environment:
       # Порт внутри контейнера
-      - PORT=3200
+      - PORT=3201
       - HOST=http://docker-app.com
       # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
       - MONGO_URL=mongodb://api_db:27017/api
@@ -43,11 +51,11 @@ services:
     ports:
       # Пробрасываем порт контейнера наружу:
       # хост:контейнер
-      - "3001:3201"
+      - "3002:3202"
     # Задаем переменные окружения - они будут доступны в коде из process.env.PORT, ...
     environment:
       # Порт внутри контейнера
-      - PORT=3201
+      - PORT=3202
       - HOST=http://docker-app.com
       # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
       - MONGO_URL=mongodb://auth_db:27017/auth
