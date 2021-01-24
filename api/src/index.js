@@ -72,3 +72,10 @@ app.get("/testwithcurrentuser", (req, res) => {
     });
   });
 });
+
+// Обращение к этому url будет происходить из auth-сервиса
+app.get("/api/testapidata", (req, res) => {
+  res.json({
+    testwithapi: true,
+  });
+});
