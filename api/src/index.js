@@ -1,7 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const axios = require("axios");
 const { connectDB } = require("./helpers/db");
-const { host, port } = require("./configuration");
+const { host, port, authApiUrl } = require("./configuration");
+const { response } = require("express");
 const app = express();
 
 // =========================
@@ -55,4 +57,18 @@ connectDB()
 
 app.get("/test", (req, res) => {
   res.send("api server is working");
+});
+
+// Когда возникает запрос http://localhost:3001/testwithcurrentuser к api-сервису
+// для получения данных, сперва нужно проверить авторизирован пользователь или нет.
+// Для этого api-сервис выполняет запрос к auth-сервису, дожидается его ответа, и потом возвращает данные
+app.get("/testwithcurrentuser", (req, res) => {
+  // api-сервис выполняет запрос к auth-сервису
+  axios.get(authApiUrl + "/currentUser").then((response) => {
+    // Дождавшись ответа - возвращаем данные
+    res.json({
+      testwithcurrentuser: true,
+      currentUserFromAuth: response.data,
+    });
+  });
 });
