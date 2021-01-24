@@ -21,3 +21,11 @@ connectDB()
 app.get("/test", (req, res) => {
   res.send("auth server is working");
 });
+
+// Возвращаем пользователя
+app.get("/api/currentUser", (req, res) => {
+  res.json({
+    id: "1234",
+    email: "foo@gmail.com",
+  });
+});
