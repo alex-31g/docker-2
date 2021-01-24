@@ -10,6 +10,9 @@ services:
     # ports:
     #   - "3000:3000"
     restart: unless-stopped
+    networks: 
+      - docker-app-network
+
 
   # Сервис 'api'
   api:
@@ -46,6 +49,9 @@ services:
     depends_on:
       # Запуск сервиса 'api' выполнять после сервиса сервиса 'api_db'
       - api_db
+    networks: 
+      - docker-app-network
+
 
   # Сервис 'auth'
   auth:
@@ -82,6 +88,9 @@ services:
     depends_on:
       # Запуск сервиса 'auth' выполнять после сервиса сервиса 'auth_db'
       - auth_db
+    networks: 
+      - docker-app-network
+
 
   # Сервис 'api_db'
   api_db:
@@ -95,6 +104,9 @@ services:
       # /data/db - место, где mongo хранит данные
       # То-есть мы говорим, что volume с именем mongodb_api на хосте конектится к /data/db внутри контейнера
       - mongodb_api:/data/db
+    networks: 
+      - docker-app-network
+
 
   # Сервис 'auth_db'
   auth_db:
@@ -108,7 +120,10 @@ services:
       # /data/db - место, где mongo хранит данные
       # То-есть мы говорим, что volume с именем mongodb_auth на хосте конектится к /data/db внутри контейнера
       - mongodb_auth:/data/db
+    networks: 
+      - docker-app-network
 
+      
   # Сервис 'nginx'
   nginx:
     # Качаем образ nginx, на базе которого нужно создать данный сервис
@@ -130,8 +145,19 @@ services:
       # иначе nginx упадет, если он не сможет спроксировать запрос на сервис, 
       # который ранится
       - frontend
+    networks: 
+      - docker-app-network
 
 # Запись ниже говорит, что мы можем использовать volume с именем mongodb_api и mongodb_auth в любом нашем сервисе 
 volumes:
   mongodb_api:
   mongodb_auth:
+
+# Указываем какие сети будут внутри нашего приложения
+networks: 
+  # Указываем имя сети - docker-app-network
+  docker-app-network:
+    # Указываем драйвер - по дефолту это bridge
+    driver: bridge
+# Далее имя этой сети нужно указать во всех сервиссах,
+# которые нужно подключить к этой сети
