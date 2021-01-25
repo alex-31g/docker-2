@@ -8,6 +8,13 @@ version: "3"
 
 services:
   frontend:
+
+    # Если для сервиса существуют 2 разных Dockerfile - prod и dev
+    # то путь к Dockerfile указывается следующим образом:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+
     # Перезапись command
     command: npm run start
     # Два поля ниже - обязательны при работе с react внутри контейнера -
@@ -21,7 +28,10 @@ services:
       # /usr/src/app/ - с какого каталога начинать работу внутри контейнера,
       # данный путь мы задали внутри Dockerfile
       - ./frontend/src:/usr/src/app/src
-      
+    environment:
+      # Необходимо для hot-reload react
+      - CHOKIDAR_USEPOLLING=true
+
   api:
     # Перезапись command
     command: npm run dev
@@ -32,3 +42,20 @@ services:
       # /usr/src/app/ - с какого каталога начинать работу внутри контейнера,
       # данный путь мы задали внутри Dockerfile
       - ./api/src:/usr/src/app/src
+      
+  auth:
+    # Перезапись command
+    command: npm run dev
+    # Указываем volume для данного контейнера, чтобы сохранить его на хосте
+    volumes:
+      # Данные хоста по адрессу ./auth/src положить
+      # внутрь контейнера по адрессу /usr/src/app/src.
+      # /usr/src/app/ - с какого каталога начинать работу внутри контейнера,
+      # данный путь мы задали внутри Dockerfile
+      - ./auth/src:/usr/src/app/src
+
+  nginx:
+    volumes: 
+      # Данные хоста по адрессу ./nginx/nginx.conf.dev положить
+      # внутрь контейнера по адрессу /etc/nginx/conf.d/nginx.conf
+      - ./nginx/nginx.conf.dev:/etc/nginx/conf.d/nginx.conf

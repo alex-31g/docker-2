@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const axios = require("axios");
 const { connectDB } = require("./helpers/db");
-const { host, port, authApiUrl } = require("./configuration");
+const { port, authApiUrl } = require("./configuration");
 const { response } = require("express");
 const app = express();
 

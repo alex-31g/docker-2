@@ -3,12 +3,20 @@ version: "3"
 # Указываем, какие сервисы DC должен сбилдить и запустить
 services:
   frontend:
-    build: ./frontend
+
+    # Если для сервиса существуют 2 разных Dockerfile - prod и dev
+    # то путь к Dockerfile указывается следующим образом:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+
     container_name: docker-frontend
     command: serve -s build -l 3000
-    # Порты описано внутри *nginx\nginx.conf.prod*
+
+    # Порты описаны внутри *nginx\nginx.conf.prod*
     # ports:
     #   - "3000:3000"
+
     restart: unless-stopped
     networks: 
       - docker-app-network
@@ -24,16 +32,18 @@ services:
     command: npm run start
     # Если контейнер внепланово произошла ошибка - DC заново запустит контейнер
     restart: unless-stopped
-    # Добавляем порты, которые данный контейнер будет использовать
-    ports:
-      # Пробрасываем порт контейнера наружу:
-      # хост:контейнер
-      - "3001:3201"
+
+    # # Порты описаны внутри *nginx\nginx.conf.prod*
+    # # Добавляем порты, которые данный контейнер будет использовать
+    # ports:
+    #   # Пробрасываем порт контейнера наружу:
+    #   # хост:контейнер
+    #   - "3001:3201"
+
     # Задаем переменные окружения - они будут доступны в коде из process.env.PORT, ...
     environment:
       # Порт внутри контейнера
       - PORT=3201
-      - HOST=http://docker-app-1.com
       # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
       - MONGO_URL=mongodb://api_db:27017/api
 
@@ -64,15 +74,17 @@ services:
     # Если контейнер внепланово произошла ошибка - DC заново запустит контейнер
     restart: unless-stopped
     # Добавляем порты, которые данный контейнер будет использовать
-    ports:
-      # Пробрасываем порт контейнера наружу:
-      # хост:контейнер
-      - "3002:3202"
+
+    # # Порты описаны внутри *nginx\nginx.conf.prod*
+    # ports:
+    #   # Пробрасываем порт контейнера наружу:
+    #   # хост:контейнер
+    #   - "3002:3202"
+
     # Задаем переменные окружения - они будут доступны в коде из process.env.PORT, ...
     environment:
       # Порт внутри контейнера
       - PORT=3202
-      - HOST=http://docker-app-1.com
       # MONGO_URL начинается с 'mongodb://', далее имя сервиса, в котором находится БД - 'api_db:', далее стандартный порт mongo - '27017'
       - MONGO_URL=mongodb://auth_db:27017/auth
 
@@ -123,7 +135,7 @@ services:
     networks: 
       - docker-app-network
 
-      
+
   # Сервис 'nginx'
   nginx:
     # Качаем образ nginx, на базе которого нужно создать данный сервис
@@ -141,10 +153,10 @@ services:
       # внутрь контейнера по адрессу /etc/nginx/conf.d/nginx.conf
       - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
     depends_on: 
-      # Сервис frontend должен быть доступен раньше, чем сервис nginx, 
-      # иначе nginx упадет, если он не сможет спроксировать запрос на сервис, 
-      # который ранится
+      # Сервис nginx запустится после сервисов frontend, api, auth
       - frontend
+      - api
+      - auth
     networks: 
       - docker-app-network
 

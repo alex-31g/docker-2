@@ -1,7 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const { connectDB } = require("./helpers/db");
-const { host, port, apiUrl } = require("./configuration");
+const { port, apiUrl } = require("./configuration");
 const app = express();
 
 const startServer = () => {
